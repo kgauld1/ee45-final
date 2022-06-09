@@ -17,19 +17,6 @@ data = np.zeros((8,8))
 savedat = []
 filename='g4.pkl'
 
-def train_model(datafile):
-    data = pickle.load(open(datafile, 'rb'))
-    X = np.array(data[0])
-    y = np.array(data[1])
-    X = X.reshape(len(X), 64)
-
-    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2)
-    sgd_clf = SGDClassifier(random_state=42, max_iter=1000, tol=1e-3)
-    sgd_clf.fit(X_train, y_train)
-    y_pred = sgd_clf.predict(X_test)
-    acc = np.sum(y_pred == y_test)/len(y_test)
-    return sgd_clf, acc
-
 def closeSerial():
     global reading
     reading = False
@@ -63,8 +50,8 @@ if __name__ == "__main__":
     serial_rd = threading.Thread(name='serial',
                                  target=readFromSerial)
     serial_rd.start()
-    sgd, acc = train_model('traindat.pkl')
-    print(acc)
+
+    model = pickle.read(open('mlmodel.pkl', 'rb'))
     try:
         while True:
             if np.ptp(data) != 0:
@@ -72,7 +59,7 @@ if __name__ == "__main__":
                 norm = 1-(norm*255).astype(np.uint8)
                 plt.imshow(norm, cmap='gray')
                 
-                plt.title(sgd.predict([data.flatten()])[0])
+                plt.title(model.predict(data.reshape(1,8,8,1)).argmax(axis=1))
                 plt.pause(0.001)
                 time.sleep(0.2)
     except KeyError:
