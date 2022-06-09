@@ -1,8 +1,7 @@
 import numpy as np
 import pickle
 import matplotlib.pyplot as plt
-from sklearn.model_selection import train_test_split
-from sklearn.linear_model import SGDClassifier
+
 import threading
 import cv2 as cv
 
@@ -12,6 +11,8 @@ import time
 START = b'-'
 reading = True
 data = np.zeros((8,8))
+
+CLASSES = ['PEACE SIGN', 'LETTER C', 'LETTER T', 'NO GESTURE RECOGNIZED']
 
 
 savedat = []
@@ -23,7 +24,7 @@ def closeSerial():
 
 def readFromSerial():
     global data
-    ser = serial.Serial(port='/dev/cu.usbmodem14401', 
+    ser = serial.Serial(port='/dev/cu.usbmodem14301', 
                         baudrate=9600,
                         bytesize=serial.EIGHTBITS)
     databuffer = [[0]*8]*8
@@ -51,7 +52,8 @@ if __name__ == "__main__":
                                  target=readFromSerial)
     serial_rd.start()
 
-    model = pickle.read(open('mlmodel.pkl', 'rb'))
+    model = pickle.load(open('mlmodel.pkl', 'rb'))
+    sgd = pickle.load(open('sgd.pkl', 'rb'))
     try:
         while True:
             if np.ptp(data) != 0:
@@ -59,7 +61,12 @@ if __name__ == "__main__":
                 norm = 1-(norm*255).astype(np.uint8)
                 plt.imshow(norm, cmap='gray')
                 
-                plt.title(model.predict(data.reshape(1,8,8,1)).argmax(axis=1))
+                mlpred = model.predict(data.reshape(1,8,8,1)).argmax(axis=1)[0]
+                sgdpred = sgd.predict(data.flatten().reshape((1,-1))) -1
+
+                cval = int(mlpred if mlpred==3 else sgdpred)
+
+                plt.title(CLASSES[cval])
                 plt.pause(0.001)
                 time.sleep(0.2)
     except KeyError:
