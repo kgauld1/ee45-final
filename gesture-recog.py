@@ -1,4 +1,3 @@
-from lib2to3.pytree import Base
 import numpy as np
 import pickle
 import matplotlib.pyplot as plt
@@ -30,7 +29,6 @@ def train_model(datafile):
     y_pred = sgd_clf.predict(X_test)
     acc = np.sum(y_pred == y_test)/len(y_test)
     return sgd_clf, acc
-
 
 def closeSerial():
     global reading
@@ -69,11 +67,9 @@ if __name__ == "__main__":
     print(acc)
     try:
         while True:
-            if np.ptp(data) != 0: 
-                norm = data #1/(1+np.exp(-data))
-                norm = (norm - np.min(norm))/np.ptp(norm)
+            if np.ptp(data) != 0:
+                norm = (data - np.min(data))/np.ptp(data)
                 norm = 1-(norm*255).astype(np.uint8)
-                #edges = cv.Canny(image=norm, threshold1=100, threshold2=200)
                 plt.imshow(norm, cmap='gray')
                 
                 plt.title(sgd.predict([data.flatten()])[0])
