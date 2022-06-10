@@ -24,7 +24,7 @@ def closeSerial():
 
 def readFromSerial():
     global data
-    ser = serial.Serial(port='/dev/cu.usbmodem14301', 
+    ser = serial.Serial(port='/dev/cu.usbmodem14401', 
                         baudrate=9600,
                         bytesize=serial.EIGHTBITS)
     databuffer = [[0]*8]*8
@@ -53,7 +53,7 @@ if __name__ == "__main__":
     serial_rd.start()
 
     model = pickle.load(open('mlmodel.pkl', 'rb'))
-    sgd = pickle.load(open('sgd.pkl', 'rb'))
+    sgd = pickle.load(open('sgd_nn.pkl', 'rb'))
     try:
         while True:
             if np.ptp(data) != 0:
@@ -61,10 +61,12 @@ if __name__ == "__main__":
                 norm = 1-(norm*255).astype(np.uint8)
                 plt.imshow(norm, cmap='gray')
                 
-                mlpred = model.predict(data.reshape(1,8,8,1)).argmax(axis=1)[0]
+                #mlpred = model.predict(data.reshape(1,8,8,1)).argmax(axis=1)[0]
                 sgdpred = sgd.predict(data.flatten().reshape((1,-1))) -1
+                cval = int(sgdpred)#int(mlpred if mlpred==3 else sgdpred)
 
-                cval = int(mlpred if mlpred==3 else sgdpred)
+                if np.ptp(data) < 100:
+                    cval = 3
 
                 plt.title(CLASSES[cval])
                 plt.pause(0.001)
