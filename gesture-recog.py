@@ -39,9 +39,6 @@ def readFromSerial():
             data = np.array(databuffer)
             if data[0].all() == 0:
                 data = np.zeros((8,8))
-            #else:
-            #    global savedat
-            #    savedat.append(data.copy())
     ser.close()
 
 
@@ -52,7 +49,7 @@ if __name__ == "__main__":
                                  target=readFromSerial)
     serial_rd.start()
 
-    model = pickle.load(open('mlmodel.pkl', 'rb'))
+    # model = pickle.load(open('mlmodel.pkl', 'rb'))
     sgd = pickle.load(open('sgd_nn.pkl', 'rb'))
     try:
         while True:
@@ -65,9 +62,15 @@ if __name__ == "__main__":
                 sgdpred = sgd.predict(data.flatten().reshape((1,-1))) -1
                 cval = int(sgdpred)#int(mlpred if mlpred==3 else sgdpred)
 
-                if np.ptp(data) < 100:
+                if np.ptp(data) < 150:
                     cval = 3
-
+                
+                if len(savedat) < 60:
+                    print(len(savedat))
+                    savedat.append((data.copy(), cval))
+                else:
+                    pickle.dump(savedat, open('OUT.pkl', 'wb'))
+                    quit()
                 plt.title(CLASSES[cval])
                 plt.pause(0.001)
                 time.sleep(0.2)

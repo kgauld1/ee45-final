@@ -32,8 +32,11 @@ history = model.fit(X_train,
 _, acc = model.evaluate(X_test, y_test)
 
 print('MODEL ACCURACY:', acc)
-#plt.plot(history.history['loss'])
-#plt.show()
+plt.plot(history.history['loss'])
+plt.title('Loss of CNN Model')
+plt.xlabel('Epoch')
+plt.ylabel('Loss')
+plt.show()
 
 model.summary()
 #pickle.dump(model, open('mlmodel.pkl', 'wb'))

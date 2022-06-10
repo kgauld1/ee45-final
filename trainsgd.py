@@ -9,9 +9,9 @@ if __name__=="__main__":
     y = np.array(data[1])
     X = X.reshape(len(X), 64)
 
-    idxs = np.where(y!=4)
-    X = X[idxs]
-    y = y[idxs]
+    #idxs = np.where(y!=4)
+    #X = X[idxs]
+    #y = y[idxs]
 
 
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2)
